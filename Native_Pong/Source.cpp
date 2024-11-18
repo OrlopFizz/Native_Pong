@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "collision_funcs.h"
 
-static bool show_imgui{true};
+static bool show_imgui{false};
 static float world_space_x = 10000.0f; //WORLD COORDINATES, IT ONLY SUPPORTS SYMMETRICAL WORLDS FOR NOW
 static float world_space_y = 6000.0f;
 static int screen_size_width = 1000;
@@ -17,8 +17,12 @@ static float aspect_ratio = ((float)screen_size_width / (float)screen_size_heigh
 static float dt = 0.0f;
 rectangle* player_bumper;
 Render* render = new Render();
+
+float x{ 403.0f };
+float y{ 553.0 };
 bool w_key_state{ false };
 bool s_key_state{ false };
+int scores[2] {0, 0};
 
 void framebuffer_size_callback(GLFWwindow* window, int pwidth, int pheight) {
 	glViewport(0, 0, pwidth, pheight); //resize the viewport with the given width and height
@@ -30,7 +34,6 @@ void framebuffer_size_callback(GLFWwindow* window, int pwidth, int pheight) {
 }
 
 
-//TODO it does not take into account differing values in the world space value
 std::vector<float> world_space_to_render_space(std::vector<float> pvertices) {
 	std::vector<float> ret_verts;
 	for (int i = 0; i < pvertices.size(); i+=3) {
@@ -64,6 +67,18 @@ void process_input(GLFWwindow* window, int key, int scancode, int action, int mo
 	}
 	if (key == GLFW_KEY_K && action == GLFW_RELEASE) {
 		show_imgui = !show_imgui;
+	}
+	if (key == GLFW_KEY_UP) {
+		y += 1.0f;
+	}
+	if (key == GLFW_KEY_DOWN) {
+		y -= 1.0f;
+	}
+	if (key == GLFW_KEY_LEFT) {
+		x -= 1.0f;
+	}
+	if (key == GLFW_KEY_RIGHT) {
+		x += 1.0f;
 	}
 
 	if (key == GLFW_KEY_W && action == GLFW_PRESS) {
@@ -163,7 +178,7 @@ int main() {
 	bottom_border.create_rectangle({0.0f, -(world_space_y - 100)}, 2 * world_space_x, 200.0f);
 	right_border.create_rectangle({ world_space_x - 100, 0.0f}, 200.0f, 2 * world_space_y);
 
-	std::map<std::array<float, 2>, std::array<float, 2>> rect_projections { {top_border.center, {0.0f, 1.0f}}, {bottom_border.center, {0.0f, 1.0f}} };
+	std::map<std::array<float, 2>, std::array<float, 2>> rect_projections{ {top_border.center, {0.0f, 1.0f}}, {bottom_border.center, {0.0f, 1.0f}}, {left_border.center, {1.0f, 0.0f}}, {right_border.center, {1.0f, 0.0f}} };
 
 	rectangle right_bumper, left_bumper;
 	left_bumper.create_rectangle({ -7500.0f, 0.0f }, 200.0f, 2000.0f);
@@ -200,7 +215,7 @@ int main() {
 
 	//GAME LOOP
 	while (!glfwWindowShouldClose(render->window)){
-		dt = render->start_rendering(show_imgui, border_recs, cir);
+		dt = render->start_rendering(show_imgui, border_recs, cir, scores, x, y);
 
 		//update player bumper pos
 		if (w_key_state == true) {
@@ -217,6 +232,7 @@ int main() {
 		
 		//calculate ai movement
 		calculate_ai_movement(&right_bumper, &cir);
+
 		//update ball pos
 		cir.move_circle(cir.vel_x * dt, cir.vel_y * dt);
 		std::vector<float> render_verts = world_space_to_render_space(cir.vertices);
@@ -241,6 +257,21 @@ int main() {
 			std::array<float, 2> new_vel_vector = difference_between_vectors(diff_vector, {cir.vel_x, cir.vel_y});
 			cir.vel_x = new_vel_vector[0];
 			cir.vel_y = new_vel_vector[1];
+		}
+
+		rectangle* collided_score_rect = get_collision_with_borders({ &right_border, &left_border }, &cir, rect_projections);
+		if (collided_score_rect != NULL) {
+			std::cout << "Collision with left or right border detected" << '\n';
+			if (collided_score_rect->center[0] < 0) { //if collision with left border
+				scores[1] = scores[1] + 1; //add score to the ai 
+			}
+			else {
+				scores[0] = scores[0] + 1; //add score to the player
+			}
+			//reset the position and velocity of the ball
+			cir.center = { 0.0f, 0.0f };
+			cir.vel_x = 3000.0f;
+			cir.vel_y = 0.0f;
 		}
 
 		//check collision with bumpers

@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\cpp_libs\GLM\glm;E:\IMGUI\imgui;E:\IMGUI\imgui\backends;E:\GLFW\GLAD\glad\include;E:\GLFW\glfw-3.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\GLFW\glfw-3.4\build\src\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\cpp_libs\GLM\glm;E:\IMGUI\imgui;E:\IMGUI\imgui\backends;E:\GLFW\GLAD\glad\include;E:\cpp_libs\freetype\include;E:\GLFW\glfw-3.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\cpp_libs\freetype\libs;D:\freetype-source\freetype-build\Debug\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>E:\GLFW\glfw-3.4\build\src\Debug\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>E:\GLFW\glfw-3.4\build\src\Debug\glfw3.lib;E:\cpp_libs\freetype\libs\freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="E:\IMGUI\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="E:\IMGUI\imgui\backends\imgui_impl_opengl3.cpp" />
@@ -163,7 +164,12 @@
   <ItemGroup>
     <Text Include="empty.txt" />
     <Text Include="Fragment_Shader.txt" />
+    <Text Include="text_fragment_shader.txt" />
+    <Text Include="text_vertex_shader.txt" />
     <Text Include="Vertex_Shader.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="CONSOLA.TTF" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

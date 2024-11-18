@@ -1,0 +1,12 @@
+#version 330 core
+in vec2 TexCoords;
+out vec4 color;
+
+uniform sampler2D text;
+uniform vec3 textColor;
+
+void main()
+{    
+    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r); //since the texture info is stored in the red value, we use that as the alpha value. this means all background pixels will be transparent(no value on the r component) and not for all the character pixels(value on the r component)
+    color = vec4(textColor, 1.0) * sampled; //adjust the sample so it takes the textColor, this renders the text with the color we want
+}  

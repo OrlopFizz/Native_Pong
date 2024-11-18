@@ -63,6 +63,9 @@
     <ClCompile Include="Circle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -103,5 +106,16 @@
     <Text Include="empty.txt">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="text_vertex_shader.txt">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="text_fragment_shader.txt">
+      <Filter>Shaders</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="CONSOLA.TTF">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>

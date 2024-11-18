@@ -1,0 +1,11 @@
+#version 330 core
+layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>, the input vertex is a combination of the vertex position and the texture position
+out vec2 TexCoords;
+
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0); //multiply projection matrix to the vertices
+    TexCoords = vertex.zw; //since texture coords are the second part of vertex, we only take those 2 coordinates.
+}  

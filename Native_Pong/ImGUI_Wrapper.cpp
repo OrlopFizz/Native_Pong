@@ -29,7 +29,15 @@ void imgui_wrapper::create_imgui_window() {
 }
 
 //value_titles aand values must have the same size
-void imgui_wrapper::create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<float> values) {
+void imgui_wrapper::float_create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<float> values) {
+	ImGui::Begin(title.c_str());
+	for (int i = 0; i < value_titles.size(); ++i) {
+		ImGui::Text(value_titles[i].c_str(), values[i]);
+	}
+	ImGui::End();
+}
+
+void imgui_wrapper::int_create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<int> values) {
 	ImGui::Begin(title.c_str());
 	for (int i = 0; i < value_titles.size(); ++i) {
 		ImGui::Text(value_titles[i].c_str(), values[i]);

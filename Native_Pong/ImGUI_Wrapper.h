@@ -9,7 +9,8 @@ class imgui_wrapper {
 		void init(GLFWwindow* window);
 		void shutdown();
 		void create_imgui_window();
-		void create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<float> values);
+		void float_create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<float> values);
+		void int_create_custom_imgui_window(std::string title, std::vector<std::string> value_titles, std::vector<int> values);
 		void start_render();
 		void render();
 };
