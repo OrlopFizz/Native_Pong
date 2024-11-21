@@ -7,6 +7,9 @@
 #include <algorithm>
 #include "collision_funcs.h"
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
+
 static bool show_imgui{false};
 static float world_space_x = 10000.0f; //WORLD COORDINATES, IT ONLY SUPPORTS SYMMETRICAL WORLDS FOR NOW
 static float world_space_y = 6000.0f;
@@ -23,6 +26,9 @@ float y{ 553.0 };
 bool w_key_state{ false };
 bool s_key_state{ false };
 int scores[2] {0, 0};
+
+//audio engine (using miniaudio)
+ma_engine engine;
 
 void framebuffer_size_callback(GLFWwindow* window, int pwidth, int pheight) {
 	glViewport(0, 0, pwidth, pheight); //resize the viewport with the given width and height
@@ -213,6 +219,12 @@ int main() {
 
 	render->set_shader("Vertex_Shader.txt", "Fragment_Shader.txt");
 
+	//initialize miniaudio engine
+	ma_result engine_init_result = ma_engine_init(NULL, &engine); //initialize miniaudio  with no engine config(default config), store the resulting engine in ma_engine engine
+	if (engine_init_result != MA_SUCCESS) {
+		std::cout << "FAILED TO INITIALIZE MINIAUDIO" << '\n';
+	}
+
 	//GAME LOOP
 	while (!glfwWindowShouldClose(render->window)){
 		dt = render->start_rendering(show_imgui, border_recs, cir, scores, x, y);
@@ -257,6 +269,8 @@ int main() {
 			std::array<float, 2> new_vel_vector = difference_between_vectors(diff_vector, {cir.vel_x, cir.vel_y});
 			cir.vel_x = new_vel_vector[0];
 			cir.vel_y = new_vel_vector[1];
+			//play border collision sound
+			ma_engine_play_sound(&engine, "ping_pong_8bit_plop.wav", NULL);
 		}
 
 		rectangle* collided_score_rect = get_collision_with_borders({ &right_border, &left_border }, &cir, rect_projections);
@@ -268,6 +282,8 @@ int main() {
 			else {
 				scores[0] = scores[0] + 1; //add score to the player
 			}
+			//PLAY SCORING SOUND
+			ma_engine_play_sound(&engine, "ping_pong_8bit_peeeeeep.wav", NULL);
 			//reset the position and velocity of the ball
 			cir.center = { 0.0f, 0.0f };
 			cir.vel_x = 3000.0f;
@@ -287,6 +303,8 @@ int main() {
 				cir.vel_x = -3000.0f;
 				cir.vel_y = comp * 3000.0f;
 			}
+			//play bumper collision sound
+			ma_engine_play_sound(&engine, "ping_pong_8bit_beeep.wav", NULL);
 		}
 	}
 	render->wrapper->shutdown();

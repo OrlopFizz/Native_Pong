@@ -4,3 +4,4 @@
 * GLM
 * ImGUI
 * FreeType
+* MiniAudio

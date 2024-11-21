@@ -19,6 +19,9 @@
     <Filter Include="ImGUI">
       <UniqueIdentifier>{ccc4783b-55f7-44c8-a627-cb03d47474a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{45c5e78e-778c-4485-a147-04b6551464ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -95,6 +98,9 @@
     <ClInclude Include="collision_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="miniaudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Vertex_Shader.txt">
@@ -117,5 +123,16 @@
     <Font Include="CONSOLA.TTF">
       <Filter>Resource Files</Filter>
     </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="ping_pong_8bit_peeeeeep.wav">
+      <Filter>Sound</Filter>
+    </Media>
+    <Media Include="ping_pong_8bit_plop.wav">
+      <Filter>Sound</Filter>
+    </Media>
+    <Media Include="ping_pong_8bit_beeep.wav">
+      <Filter>Sound</Filter>
+    </Media>
   </ItemGroup>
 </Project>

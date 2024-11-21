@@ -159,6 +159,7 @@
     <ClInclude Include="E:\IMGUI\imgui\imgui.h" />
     <ClInclude Include="E:\IMGUI\imgui\imgui_internal.h" />
     <ClInclude Include="ImGUI_Wrapper.h" />
+    <ClInclude Include="miniaudio.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,11 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="CONSOLA.TTF" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="ping_pong_8bit_beeep.wav" />
+    <Media Include="ping_pong_8bit_peeeeeep.wav" />
+    <Media Include="ping_pong_8bit_plop.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
