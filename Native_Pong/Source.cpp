@@ -18,14 +18,18 @@ static int screen_size_height = 600;
 //aspect ratio de 1.6666666, es decir, por cada unidad de altura(y) el valor de x debe multiplicarse uno por 1.66666666
 static float aspect_ratio = ((float)screen_size_width / (float)screen_size_height);
 static float dt = 0.0f;
+
+Circle* circle_pointer;
 rectangle* player_bumper;
 Render* render = new Render();
 
-float x{ 403.0f };
-float y{ 553.0 };
+float x{ 0.0f };
+float y{ 0.0f };
 bool w_key_state{ false };
 bool s_key_state{ false };
 int scores[2] {0, 0};
+
+int winner{ 0 };
 
 //audio engine (using miniaudio)
 ma_engine engine;
@@ -74,17 +78,12 @@ void process_input(GLFWwindow* window, int key, int scancode, int action, int mo
 	if (key == GLFW_KEY_K && action == GLFW_RELEASE) {
 		show_imgui = !show_imgui;
 	}
-	if (key == GLFW_KEY_UP) {
-		y += 1.0f;
-	}
-	if (key == GLFW_KEY_DOWN) {
-		y -= 1.0f;
-	}
-	if (key == GLFW_KEY_LEFT) {
-		x -= 1.0f;
-	}
-	if (key == GLFW_KEY_RIGHT) {
-		x += 1.0f;
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && winner != 0) {
+		//reset game when someone has won
+		winner = 0;
+		circle_pointer->vel_x = 6000.0f;
+		scores[0] = 0;
+		scores[1] = 0;
 	}
 
 	if (key == GLFW_KEY_W && action == GLFW_PRESS) {
@@ -102,7 +101,21 @@ void process_input(GLFWwindow* window, int key, int scancode, int action, int mo
 
 	if (key == GLFW_KEY_L && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
 		std::cout << "key pressed" << '\n';
-	} 
+	}
+
+	//TODO debug stuff, delete when not needed
+	if (key == GLFW_KEY_UP) {
+		y += 1.0f;
+	}
+	if (key == GLFW_KEY_DOWN) {
+		y -= 1.0f;
+	}
+	if (key == GLFW_KEY_LEFT) {
+		x -= 1.0f;
+	}
+	if (key == GLFW_KEY_RIGHT) {
+		x += 1.0f;
+	}
 }
 
 rectangle* get_collision_with_bumpers(std::array<rectangle*, 2> bumper_list, Circle* cir) {
@@ -162,12 +175,12 @@ rectangle* get_collision_with_borders(std::array<rectangle*, 2> border_list, Cir
 }
 
 void calculate_ai_movement(rectangle* ai_bumper, Circle* cir) {
-	if (ai_bumper->center[1] < cir->center[1]) { //the ball is up from the bumper, move that way
+	if ((ai_bumper->center[1] + ai_bumper->height/2) < cir->center[1]) { //the ball is up from the bumper, move that way
 		ai_bumper->move_rectangle(0.0f, 6000.0f * dt);
 		std::vector<float> render_verts = world_space_to_render_space(ai_bumper->vertices);
 		render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), (*ai_bumper).VAO, (*ai_bumper).VBO);
 	}
-	else if (ai_bumper->center[1] > cir->center[1]) { //the ball is down from the bumper, move that way
+	else if ((ai_bumper->center[1] - ai_bumper->height/2) > cir->center[1]) { //the ball is down from the bumper, move that way
 		ai_bumper->move_rectangle(0.0f, -6000.0f * dt);
 		std::vector<float> render_verts = world_space_to_render_space(ai_bumper->vertices);
 		render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), (*ai_bumper).VAO, (*ai_bumper).VBO);
@@ -187,16 +200,17 @@ int main() {
 	std::map<std::array<float, 2>, std::array<float, 2>> rect_projections{ {top_border.center, {0.0f, 1.0f}}, {bottom_border.center, {0.0f, 1.0f}}, {left_border.center, {1.0f, 0.0f}}, {right_border.center, {1.0f, 0.0f}} };
 
 	rectangle right_bumper, left_bumper;
-	left_bumper.create_rectangle({ -7500.0f, 0.0f }, 200.0f, 2000.0f);
-	right_bumper.create_rectangle({7500.0f, 0.0f}, 200.0f, 2000.0f);
+	left_bumper.create_rectangle({ -9000.0f, 0.0f }, 200.0f, 1250.0f);
+	right_bumper.create_rectangle({9000.0f, 0.0f}, 200.0f, 1250.0f);
 
 	player_bumper = &left_bumper;
 
-	//std::vector<rectangle*> border_recs{ &top_border, &left_border, &bottom_border, &right_border, &right_bumper, &left_bumper };
 	std::vector<rectangle*> border_recs{ &top_border, &bottom_border, &right_bumper, &left_bumper};
 	std::array<rectangle*, 2> bumpers{ &right_bumper, &left_bumper };
+
 	Circle cir;
-	cir.create_circle({0.0f, 0.0f }, 250.0f);
+	cir.create_circle({0.0f, 0.0f }, 150.0f);
+	circle_pointer = &cir;
 
 	//create render object
 	float rgba[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -227,15 +241,15 @@ int main() {
 
 	//GAME LOOP
 	while (!glfwWindowShouldClose(render->window)){
-		dt = render->start_rendering(show_imgui, border_recs, cir, scores, x, y);
+		dt = render->start_rendering(show_imgui, border_recs, cir, scores, x, y, winner);
 
 		//update player bumper pos
-		if (w_key_state == true) {
+		if (w_key_state == true && (player_bumper->center[1] + player_bumper->height/2 < world_space_y - 200.0f)) {
 			player_bumper->move_rectangle(0.0f, 6000.0f * dt);
 			std::vector<float> render_verts = world_space_to_render_space(player_bumper->vertices);
 			render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), (*player_bumper).VAO, (*player_bumper).VBO);
 		}
-		if (s_key_state == true) {
+		if (s_key_state == true && (player_bumper->center[1] - player_bumper->height/2 >= -world_space_y + 200.0f)) {
 			player_bumper->move_rectangle(0.0f, -6000.0f * dt);
 			std::vector<float> render_verts = world_space_to_render_space(player_bumper->vertices);
 			render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), (*player_bumper).VAO, (*player_bumper).VBO);
@@ -250,14 +264,6 @@ int main() {
 		std::vector<float> render_verts = world_space_to_render_space(cir.vertices);
 		render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), cir.VAO, cir.VBO);
 		
-		/*
-		cir.center[1] = left_bumper.center[1];
-		cir.vertices.clear();
-		cir.calculate_vertices(cir.center);
-		std::vector<float> render_verts = world_space_to_render_space(cir.vertices);
-		render->change_VBO_Vertices(render_verts.data(), sizeof(float) * render_verts.size(), cir.VAO, cir.VBO);
-		*/
-
 		//check for collision with borders
 		rectangle* collided_border = get_collision_with_borders({&top_border, &bottom_border}, &cir, rect_projections);
 		if (collided_border != NULL){
@@ -286,8 +292,21 @@ int main() {
 			ma_engine_play_sound(&engine, "ping_pong_8bit_peeeeeep.wav", NULL);
 			//reset the position and velocity of the ball
 			cir.center = { 0.0f, 0.0f };
-			cir.vel_x = 3000.0f;
+			cir.vel_x = 8000.0f;
 			cir.vel_y = 0.0f;
+
+			//check if someone won
+			if (scores[0] == 5) {
+				//the player won! stop the ball and show a winning screen
+				cir.vel_x = 0.0f;
+				cir.vel_y = 0.0f;
+				winner = 1;
+			}
+			else if (scores[1] == 5) {
+				cir.vel_x = 0.0f;
+				cir.vel_y = 0.0f;
+				winner = 2;
+			}
 		}
 
 		//check collision with bumpers
@@ -295,13 +314,13 @@ int main() {
 		if (collided_rect != NULL){
 			std::cout << "collision with bumper detected" << '\n';
 			float comp = (cir.center[1] - collided_rect->center[1]) / collided_rect->height;
-			if (collided_rect->center[0] == -7500.0f) {
-				cir.vel_x = 3000.0f;
-				cir.vel_y = comp * 3000.0f;
+			if (collided_rect->center[0] == -9000.0f) {
+				cir.vel_x = 8000.0f;
+				cir.vel_y = comp * 8000.0f;
 			}
 			else {
-				cir.vel_x = -3000.0f;
-				cir.vel_y = comp * 3000.0f;
+				cir.vel_x = -8000.0f;
+				cir.vel_y = comp * 8000.0f;
 			}
 			//play bumper collision sound
 			ma_engine_play_sound(&engine, "ping_pong_8bit_beeep.wav", NULL);

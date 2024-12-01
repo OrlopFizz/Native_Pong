@@ -136,6 +136,14 @@ public:
 			std::pair<char, Character> pair_to_add {c, *char_struct};
 			characters.insert(pair_to_add);
 		}
+		//load characters we are going to use
+		unsigned char letters[15] = { 80, 76, 65, 89, 69, 82, 87, 79, 78, 73, 32, 83, 67, 84, 71};
+		for (int i = 0; i < 15; ++i) {
+			Character* char_struct = create_character_struct(letters[i]);
+
+			std::pair<char, Character> pair_to_add{ letters[i], *char_struct};
+			characters.insert(pair_to_add);
+		}
 		//create the text rendering VAO
 		create_text_rendering_VAO(text_VAO, text_VBO);
 
@@ -286,7 +294,7 @@ public:
 		glBindTexture(GL_TEXTURE_2D, NULL); //unbind the texture
 	}
 
-	float start_rendering(bool show_imgui, std::vector<rectangle*> fig_list, Circle pball, int* scores, float x, float y) {
+	float start_rendering(bool show_imgui, std::vector<rectangle*> fig_list, Circle pball, int* scores, float x, float y, int winner) {
 		glfwPollEvents();
 
 		//imgui rendering setup
@@ -338,7 +346,16 @@ public:
 		//RenderText(std::to_string(scores[1]), x, y, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		RenderText(std::to_string(scores[0]), 350.0f, 553.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 		RenderText(std::to_string(scores[1]), 420.0f, 553.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-
+		//if winner param is 0, no one has yet, if its 1, player won, if its 2, ai won.
+		if (winner == 1) { //player won
+			RenderText("PLAYER WON", 270.0f, 420.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			//RenderText("PLAYER WON", x, y, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			RenderText("PRESS SPACE TO PLAY AGAIN", 63.0f, 31.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else if (winner == 2) {
+			RenderText("AI WON", 335.0f, 420.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+			RenderText("PRESS SPACE TO PLAY AGAIN", 63.0f, 31.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
 
 		get_gl_error();
 

@@ -12,7 +12,7 @@ struct Circle {
 	unsigned int VAO;
 	unsigned int VBO;
 	
-	float vel_x = 3000.0f;
+	float vel_x = -8000.0f;
 	float vel_y = 0.0f;
 	//float vel_y = 3000.0f;
 	std::vector<float> vertices;
